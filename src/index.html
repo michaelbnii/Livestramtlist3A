@@ -1,0 +1,108 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ListStream</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
+
+import React, { useState } from "react";
+
+function InputList() {
+  const [items, setItems] = useState([]);
+  const [input, setInput] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingText, setEditingText] = useState("");
+
+  // Add new item
+  const addItem = () => {
+    if (input.trim() === "") return;
+
+    setItems([
+      ...items,
+      { id: Date.now(), text: input, completed: false }
+    ]);
+    setInput("");
+  };
+
+  // Delete item
+  const deleteItem = (id) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  // Toggle completed
+  const toggleComplete = (id) => {
+    setItems(
+      items.map(item =>
+        item.id === id
+          ? { ...item, completed: !item.completed }
+          : item
+      )
+    );
+  };
+
+  // Save edited item
+  const saveEdit = (id) => {
+    setItems(
+      items.map(item =>
+        item.id === id ? { ...item, text: editingText } : item
+      )
+    );
+    setEditingId(null);
+    setEditingText("");
+  };
+
+  return (
+    <div className="container">
+      <h2>User Input List</h2>
+
+      <div className="input-section">
+        <input
+          type="text"
+          value={input}
+          placeholder="Enter item..."
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button onClick={addItem}>Add</button>
+      </div>
+
+      <ul>
+        {items.map(item => (
+          <li key={item.id} className={item.completed ? "completed" : ""}>
+            {editingId === item.id ? (
+              <>
+                <input
+                  value={editingText}
+                  onChange={(e) => setEditingText(e.target.value)}
+                />
+                <button onClick={() => saveEdit(item.id)}>Save</button>
+              </>
+            ) : (
+              <>
+                <span onClick={() => toggleComplete(item.id)}>
+                  {item.text}
+                </span>
+                <button
+                  onClick={() => {
+                    setEditingId(item.id);
+                    setEditingText(item.text);
+                  }}
+                >
+                  Edit
+                </button>
+                <button onClick={() => deleteItem(item.id)}>Delete</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default InputList;
